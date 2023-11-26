@@ -1,27 +1,39 @@
 #ifndef LEXER_H_
 #define LEXER_H_
 
-#include <stdlib.h>
+#include <inttypes.h>
 
 #define FILE_CAP 1024*1024 // The maximum size of a source file: 1MB
-struct File_Contents {
+struct FileContents
+{
     char* content;
     size_t length;
 };
 
-struct Tokens {
-    struct Token* tokens;
+struct Location
+{
+    char* file;
+    int row;
+    int col;
+};
+
+struct Tokens
+{
+    struct Token * tokens;
     size_t count;
 };
 
-struct Token {
+struct Token
+{
+    struct Location loc;
     char* text;
-    size_t size;
+    size_t length;
 };
 
-struct File_Contents get_file_contents(const char* file_path);
-int notspace(int argument);
-int find(const char* text, size_t length, int start, int f (int) );
-struct Tokens get_tokens_from_file(const char* file_path);
+struct FileContents
+get_file_contents(char* file_path);
 
-#endif
+struct Tokens
+get_tokens_from_file(char* file_path);
+
+#endif /* LEXER_H */

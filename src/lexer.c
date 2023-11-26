@@ -4,9 +4,10 @@
 #include <ctype.h>
 #include "./lexer.h"
 
-struct File_Contents get_file_contents(const char* file_path)
+struct FileContents
+get_file_contents(char* file_path)
 {
-    struct File_Contents fc;
+    struct FileContents fc;
 
     FILE * f = fopen(file_path, "r");
 
@@ -22,43 +23,86 @@ struct File_Contents get_file_contents(const char* file_path)
     return fc;
 }
 
-int notspace(int argument) { return !isspace(argument); }
+// Opposite of isspace
+int
+notspace(int argument)
+{
+    return !isspace(argument);
+}
 
-int find(const char* text, size_t length, int start, int f (int) )
+// Find the next character in a text according to a predicate
+// Return the index if found, -1 if not found
+int
+find(const char* text, size_t length, int start, int predicate(int) )
 {
     for (size_t i = start; i < length; i++)
     {
         char c = text[i];
-        if (f((int)c)) return i;
+        if (predicate((int)c)) return i;
     }
     return -1;
 }
 
-struct Tokens get_tokens_from_file(const char* file_path)
+struct Location
+get_location_from_index(char* file_path, const char* text, int index)
 {
-    struct File_Contents fc = get_file_contents(file_path);
+    int row = 1;
+    int col = 1;
+    for (int i = 0; i <= index; i++)
+    {
+        col++;
+        if (text[i] == '\n')
+        {
+            row++;
+            col = 1;
+        }
+    }
+    
+    struct Location loc = {
+        .file = file_path,
+        .row = row,
+        .col = col
+    };
 
-    struct Token* tokens = ( struct Token * )malloc( sizeof(struct Token) );
-    size_t tokens_size = 0;
+    return loc;
+}
+
+struct Tokens
+get_tokens_from_file(char* file_path)
+{
+    struct FileContents fc = get_file_contents(file_path);
+
+    // Initialize the structure
+    struct Tokens tokens = {
+        .tokens = ( struct Token * )malloc( sizeof(struct Token) ),
+        .count = 0
+    };
+
+    // Loop over the tokens in the file
     int index = find(fc.content, fc.length, 0, notspace);
     while (index >= 0)
     {
-        int token_end = find(fc.content, fc.length, index+1, isspace);
-        size_t token_size = token_end - index;
-        tokens[tokens_size] = (struct Token){
-            .text = (char*)memcpy(malloc(token_size), fc.content + index, token_size),
-            .size = token_size
-        };
-        tokens_size++;
-        tokens = (struct Token*)realloc(tokens, (tokens_size + 1) * sizeof(struct Token));
+        tokens.count++;
         
+        // Find the next space
+        int token_end = find(fc.content, fc.length, index + 1, isspace);
+        
+        // Create the token structure
+        struct Token token = {
+            .loc = get_location_from_index(file_path, fc.content, index - 1),
+            .text = strndup(fc.content + index, token_end - index), // The text (null terminated)
+            .length = token_end - index                             // The size (without null byte)
+        };
+
+        // Append to list of tokens
+        tokens.tokens[tokens.count - 1] = token;  
+
+        // Resize tokens appropriately 
+        tokens.tokens = ( struct Token * )realloc(tokens.tokens, ( tokens.count + 1) * sizeof(struct Token) );
+
+        // Find the next token
         index = find(fc.content, fc.length, token_end + 1, notspace);
     }
 
-    struct Tokens t = {
-        .tokens = tokens,
-        .count = tokens_size
-    };
-
-    return t;
+    return tokens;
 }
