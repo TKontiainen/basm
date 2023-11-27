@@ -5,19 +5,6 @@
 #include "lexer.h"
 #include "parser.h"
 
-enum Instruction
-get_instruction_from_token(struct Token token)
-{
-    if (strcmp(token.text, "mov") == 0) return MOV;
-
-    else if (strcmp(token.text, "syscall") == 0) return SYSCALL;
-
-    else {
-        fprintf(stderr, "%s:%d:%d: fatal: unknown instruction %s\n", token.loc.file, token.loc.row, token.loc.col, token.text);
-        exit(1);
-    }
-}
-
 // Return the register on success -1 on failure
 enum Register
 get_register_from_token(struct Token token)
@@ -110,6 +97,19 @@ get_operands_from_tokens(enum Instruction instruction, struct Tokens tokens, siz
     }
 
     return operands;
+}
+
+enum Instruction
+get_instruction_from_token(struct Token token)
+{
+    if (strcmp(token.text, "mov") == 0) return MOV;
+
+    else if (strcmp(token.text, "syscall") == 0) return SYSCALL;
+
+    else {
+        fprintf(stderr, "%s:%d:%d: fatal: unknown instruction %s\n", token.loc.file, token.loc.row, token.loc.col, token.text);
+        exit(1);
+    }
 }
 
 struct Ops

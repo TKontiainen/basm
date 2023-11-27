@@ -11,6 +11,11 @@ get_file_contents(char* file_path)
 
     FILE * f = fopen(file_path, "r");
 
+    if (f == NULL) {
+        printf("fatal: file %s not found\n", file_path);
+        exit(1);
+    }
+
     void* buf = malloc(FILE_CAP);
 
     fc.length = fread(buf, sizeof(char), FILE_CAP, f);
@@ -106,3 +111,4 @@ get_tokens_from_file(char* file_path)
 
     return tokens;
 }
+

@@ -37,3 +37,4 @@ struct Tokens
 get_tokens_from_file(char* file_path);
 
 #endif /* LEXER_H */
+

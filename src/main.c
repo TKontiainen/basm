@@ -2,9 +2,24 @@
 #include "lexer.h"
 #include "parser.h"
 
-int main(void)
+void usage(char* program_name)
 {
-    struct Tokens tokens = get_tokens_from_file("foo.asm");
+    printf("USAGE: %s <file>\n", program_name);
+    printf("    no assembler flags for now\n");
+}
+
+int main(int argc, char* argv[])
+{
+    char* program_name = argv[0];
+    if (argc < 2) {
+        printf("fatal: no inut file provided\n");
+        usage(program_name);
+        return 0;
+    }
+
+    char* file_path = argv[1];
+
+    struct Tokens tokens = get_tokens_from_file(file_path);
 
     printf("TOKENS:\n");
     for (size_t i = 0; i < tokens.count; i++)
