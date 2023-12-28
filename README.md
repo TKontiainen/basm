@@ -7,4 +7,6 @@ it generate the mahine instructions for the assembly in foo.asm an
 put them in a.out
 
 ### Usage
+```bash
 ./basm foo.asm
+```
