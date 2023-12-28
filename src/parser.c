@@ -51,7 +51,7 @@ get_operand_from_token(struct Token token)
         } break;
 
         case IMMEDIATE: {
-            value.imm = atoi(token.text);
+            value.imm = atoi(token.text + 1);
         } break;
 
         default: {
